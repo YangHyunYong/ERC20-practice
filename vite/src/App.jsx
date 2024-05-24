@@ -1,3 +1,4 @@
+import { ethers } from "ethers";
 import { useState } from "react";
 
 const App = () => {
@@ -13,6 +14,9 @@ const onClickMetamask = async () => {
     } catch (error) {
       console.error(error);
     }
+  };
+   const onClickLogOut = () => {
+    setSigner(null);
   };
   return (
     <div className="min-h-screen flex flex-col justify-start items-center py-16">
