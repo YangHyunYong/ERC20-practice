@@ -1,42 +1,46 @@
-import { ethers } from "ethers";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import MetamaskButton from "./components/MetamaskButton";
+import Erc20Connect from "./components/Erc20Connect";
 
 const App = () => {
   const [signer, setSigner] = useState();
+  const [contract, setContract] = useState();
+  const [name, setName] = useState();
+  const [symbol, setSymbol] = useState();
 
-const onClickMetamask = async () => {
+  const getNameSymbol = async () => {
     try {
-      if (!window.ethereum) return;
+      const nameResponse = await contract.name();
+      const symbolResponse = await contract.symbol();
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
-
-      setSigner(await provider.getSigner());
+      setName(nameResponse);
+      setSymbol(symbolResponse);
     } catch (error) {
       console.error(error);
     }
   };
-   const onClickLogOut = () => {
-    setSigner(null);
-  };
+
+  useEffect(() => {
+    if (!contract) return;
+
+    getNameSymbol();
+  }, [contract]);
+
   return (
     <div className="min-h-screen flex flex-col justify-start items-center py-16">
-      {signer ? (
-        <div className="flex gap-8">
-          <div className="box-style">
-            안녕하세요, {signer.address.substring(0, 7)}...
-            {signer.address.substring(signer.address.length - 5)}님
+      <MetamaskButton signer={signer} setSigner={setSigner}></MetamaskButton>
+      {signer && (
+        <div className="mt-16 flex flex-col gap-8 grow max-w-xl w-full">
+          <div className="box-style text-center">
+            0x18393DAce171F8bADF5d0b9E0316d548D1072cE5
           </div>
-          <button
-            className="button-style border-red-300 hover:border-red-400"
-            onClick={onClickLogOut}
-          >
-            로그아웃
-          </button>
+          <Erc20Connect
+            setContract={setContract}
+            name={name}
+            symbol={symbol}
+            signer={signer}
+          ></Erc20Connect>
         </div>
-      ) : (
-        <button className="button-style" onClick={onClickMetamask}>
-          🦊 메타마스크 로그인
-        </button>
       )}
     </div>
   );
